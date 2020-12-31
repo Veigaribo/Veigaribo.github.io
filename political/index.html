@@ -4,11 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simplified Political Test</title>
+
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #form,
+      #title {
+        margin: 1em;
+      }
+    </style>
   </head>
   <body>
     <header>
       <center>
-        <h1>Simplified Political Compass</h1>
+        <h1 id="title">Simplified Political Compass</h1>
       </center>
     </header>
 
@@ -35,7 +46,7 @@
 
       <br />
       <center>
-        <svg id="plot-area" width="600" height="300"></svg>
+        <svg id="plot-area" width="600" height="400"></svg>
       </center>
     </section>
 
@@ -60,6 +71,24 @@
         var questionLegend = document.getElementById("question");
         var plotArea = document.getElementById("plot-area");
 
+        var defaultPlotAreaDimensions = [
+          parseInt(plotArea.getAttribute("width")),
+          parseInt(plotArea.getAttribute("height")),
+        ];
+
+        var result;
+
+        // adjust for mobile
+        adjustPlotAreaSize(plotArea, defaultPlotAreaDimensions);
+
+        window.addEventListener("resize", function () {
+          adjustPlotAreaSize(plotArea, defaultPlotAreaDimensions);
+
+          if (result) {
+            displayResult(plotArea, result);
+          }
+        });
+
         // root question
         var currentQuestion = qa;
 
@@ -80,8 +109,10 @@
           }
 
           if (currentQuestion.result) {
+            result = currentQuestion.result;
+
             // not actually a question, we're done
-            displayResult(plotArea, currentQuestion.result);
+            displayResult(plotArea, result);
 
             // reset to root
             currentQuestion = qa;
@@ -92,6 +123,7 @@
 
           // in case the user is answering again
           clearResult(plotArea);
+          result = undefined;
 
           displayQuestion(questionLegend, currentQuestion);
 
@@ -114,6 +146,37 @@
             return input.value;
           }
         }
+      }
+
+      function adjustPlotAreaSize(plotArea, defaultPlotAreaDimensions) {
+        var plotAreaWidth = parseInt(plotArea.getAttribute("width"));
+        var plotAreaHeight = parseInt(plotArea.getAttribute("height"));
+
+        var clientWidth =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          document.getElementsByTagName("body")[0].clientWidth;
+
+        if (plotAreaWidth < defaultPlotAreaDimensions[0]) {
+          plotAreaWidth = defaultPlotAreaDimensions[0];
+        }
+
+        if (plotAreaHeight < defaultPlotAreaDimensions[1]) {
+          plotAreaHeight = defaultPlotAreaDimensions[1];
+        }
+
+        // if the area is overflowing
+        if (plotAreaWidth > clientWidth) {
+          plotAreaWidth = clientWidth;
+        }
+
+        // if the area has become more vertical than horizontal
+        if (plotAreaHeight > plotAreaWidth) {
+          plotAreaHeight = plotAreaWidth;
+        }
+
+        plotArea.setAttribute("width", "" + plotAreaWidth);
+        plotArea.setAttribute("height", "" + plotAreaHeight);
       }
 
       function displayQuestion(el, question) {
