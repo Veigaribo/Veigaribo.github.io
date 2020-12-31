@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simplified Political Test</title>
+  </head>
+  <body>
+    <header>
+      <center>
+        <h1>Simplified Political Compass</h1>
+      </center>
+    </header>
+
+    <section>
+      <form id="form">
+        <fieldset>
+          <legend id="question"></legend>
+
+          <label>
+            Yes
+            <input name="answer" type="radio" value="true" required />
+          </label>
+          <label>
+            No
+            <input name="answer" type="radio" value="false" required />
+          </label>
+
+          <small><i>(If in doubt, the answer is "Yes")</i></small>
+        </fieldset>
+
+        <br />
+        <input type="submit" value="Next" id="next-button" />
+      </form>
+
+      <br />
+      <center>
+        <svg id="plot-area" width="600" height="300"></svg>
+      </center>
+    </section>
+
+    <script>
+      var qa = {
+        title: "Should the state (government) exist?",
+        ifFalse: { result: [1, -1] },
+        ifTrue: {
+          title: "Should the state regulate the economy?",
+          ifFalse: { result: [1, 1] },
+          ifTrue: {
+            title: "Are hierarchies important?",
+            ifFalse: { result: [-1, -1] },
+            ifTrue: { result: [-1, 1] },
+          },
+        },
+      };
+
+      window.addEventListener("DOMContentLoaded", function () {
+        var nextButton = document.getElementById("next-button");
+        var form = document.getElementById("form");
+        var questionLegend = document.getElementById("question");
+        var plotArea = document.getElementById("plot-area");
+
+        // root question
+        var currentQuestion = qa;
+
+        displayQuestion(questionLegend, currentQuestion);
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          var answer = this.answer.value;
+
+          switch (answer) {
+            case "true":
+              currentQuestion = currentQuestion.ifTrue;
+              break;
+            case "false":
+              currentQuestion = currentQuestion.ifFalse;
+              break;
+          }
+
+          if (currentQuestion.result) {
+            // not actually a question, we're done
+            displayResult(plotArea, currentQuestion.result);
+
+            // reset to root
+            currentQuestion = qa;
+            displayQuestion(questionLegend, currentQuestion);
+
+            return null;
+          }
+
+          // in case the user is answering again
+          clearResult(plotArea);
+
+          displayQuestion(questionLegend, currentQuestion);
+
+          return null;
+        });
+      });
+
+      function displayQuestion(el, question) {
+        el.innerHTML = question.title;
+      }
+
+      function displayResult(plotArea, result) {
+        var plotAreaWidth = parseInt(plotArea.getAttribute("width"));
+        var plotAreaHeight = parseInt(plotArea.getAttribute("height"));
+
+        var halfPlotAreaWidth = plotAreaWidth / 2;
+        var halfPlotAreaHeight = plotAreaHeight / 2;
+
+        (function drawQuadrants() {
+          (function drawAuthoritarianLeft() {
+            var quadrant = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "rect"
+            );
+
+            quadrant.setAttributeNS("", "x", "0");
+            quadrant.setAttributeNS("", "y", "0");
+
+            quadrant.setAttributeNS("", "width", "" + halfPlotAreaWidth);
+            quadrant.setAttributeNS("", "height", "" + halfPlotAreaHeight);
+
+            quadrant.setAttributeNS("", "style", "fill:#f9bbbb");
+
+            plotArea.appendChild(quadrant);
+          })();
+
+          (function drawAuthoritarianRight() {
+            var quadrant = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "rect"
+            );
+
+            quadrant.setAttributeNS("", "x", "" + halfPlotAreaWidth);
+            quadrant.setAttributeNS("", "y", "0");
+
+            quadrant.setAttributeNS("", "height", "" + halfPlotAreaHeight);
+            quadrant.setAttributeNS("", "width", "" + halfPlotAreaWidth);
+
+            quadrant.setAttributeNS("", "style", "fill:#93daf8");
+
+            plotArea.appendChild(quadrant);
+          })();
+
+          (function drawLibertarianLeft() {
+            var quadrant = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "rect"
+            );
+
+            quadrant.setAttributeNS("", "x", "0");
+            quadrant.setAttributeNS("", "y", "" + halfPlotAreaHeight);
+
+            quadrant.setAttributeNS("", "height", "" + halfPlotAreaHeight);
+            quadrant.setAttributeNS("", "width", "" + halfPlotAreaWidth);
+
+            quadrant.setAttributeNS("", "style", "fill:#c9e5bd");
+
+            plotArea.appendChild(quadrant);
+          })();
+
+          (function drawLibertarianRight() {
+            var quadrant = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "rect"
+            );
+
+            quadrant.setAttributeNS("", "x", "" + halfPlotAreaWidth);
+            quadrant.setAttributeNS("", "y", "" + halfPlotAreaHeight);
+
+            quadrant.setAttributeNS("", "height", "" + halfPlotAreaHeight);
+            quadrant.setAttributeNS("", "width", "" + halfPlotAreaWidth);
+
+            quadrant.setAttributeNS("", "style", "fill:#e2c7e0");
+
+            plotArea.appendChild(quadrant);
+          })();
+        })();
+
+        (function plotX() {
+          var x = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+
+          x.setAttributeNS("", "x1", "0");
+          x.setAttributeNS("", "y1", "" + halfPlotAreaHeight);
+
+          x.setAttributeNS("", "x2", "" + plotAreaWidth);
+          x.setAttributeNS("", "y2", "" + halfPlotAreaHeight);
+
+          x.setAttributeNS("", "style", "stroke:#000;stroke-width:2");
+
+          plotArea.appendChild(x);
+        })();
+
+        (function plotY() {
+          var y = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+
+          y.setAttributeNS("", "x1", "" + halfPlotAreaWidth);
+          y.setAttributeNS("", "y1", "0");
+
+          y.setAttributeNS("", "x2", "" + halfPlotAreaWidth);
+          y.setAttributeNS("", "y2", "" + plotAreaHeight);
+
+          y.setAttributeNS("", "style", "stroke:#000;stroke-width:2");
+
+          plotArea.appendChild(y);
+        })();
+
+        (function plotResult() {
+          var point = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+
+          var radius = plotAreaHeight * 0.05;
+
+          // useful to keep the plotted point inside the frame
+          var xSign = Math.sign(result[0]);
+          var ySign = Math.sign(result[1]);
+
+          point.setAttributeNS(
+            "",
+            "cx",
+            "" +
+              (halfPlotAreaWidth +
+                halfPlotAreaWidth * result[0] -
+                radius * xSign)
+          );
+
+          point.setAttributeNS(
+            "",
+            "cy",
+            "" +
+              (halfPlotAreaHeight +
+                halfPlotAreaHeight * -result[1] -
+                radius * -ySign)
+          );
+
+          point.setAttributeNS("", "r", "" + radius);
+
+          point.setAttributeNS(
+            "",
+            "style",
+            "fill:#000;stroke:#FFF;stroke-width:4"
+          );
+
+          plotArea.appendChild(point);
+        })();
+      }
+
+      function clearResult(plotArea) {
+        while (plotArea.firstChild) {
+          plotArea.removeChild(plotArea.firstChild);
+        }
+      }
+    </script>
+  </body>
+</html>
