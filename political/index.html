@@ -52,6 +52,9 @@
       <br />
       <center>
         <svg id="plot-area" width="600" height="400"></svg>
+
+        <br />
+        <h2 id="result-description"></h2>
       </center>
     </section>
 
@@ -75,7 +78,11 @@
         var clearButton = document.getElementById("clear-button");
         var form = document.getElementById("form");
         var questionLegend = document.getElementById("question");
+
         var plotArea = document.getElementById("plot-area");
+        var resultDescriptionArea = document.getElementById(
+          "result-description"
+        );
 
         var defaultPlotAreaDimensions = [
           parseInt(plotArea.getAttribute("width")),
@@ -91,7 +98,7 @@
           adjustPlotAreaSize(plotArea, defaultPlotAreaDimensions);
 
           if (result) {
-            displayResult(plotArea, result, clearButton);
+            displayResult(plotArea, result, clearButton, resultDescriptionArea);
           }
         });
 
@@ -118,7 +125,7 @@
             result = currentQuestion.result;
 
             // not actually a question, we're done
-            displayResult(plotArea, result, clearButton);
+            displayResult(plotArea, result, clearButton, resultDescriptionArea);
 
             // reset to root
             currentQuestion = qa;
@@ -128,7 +135,7 @@
           }
 
           // in case the user is answering again
-          clearResult(plotArea, clearButton);
+          clearResult(plotArea, clearButton, resultDescriptionArea);
           result = undefined;
 
           displayQuestion(questionLegend, currentQuestion);
@@ -137,7 +144,7 @@
         });
 
         clearButton.addEventListener("click", function () {
-          clearResult(plotArea, clearButton);
+          clearResult(plotArea, clearButton, resultDescriptionArea);
         });
       });
 
@@ -193,7 +200,12 @@
         el.innerHTML = question.title;
       }
 
-      function displayResult(plotArea, result, clearButton) {
+      function displayResult(
+        plotArea,
+        result,
+        clearButton,
+        resultDescriptionArea
+      ) {
         var plotAreaWidth = parseInt(plotArea.getAttribute("width"));
         var plotAreaHeight = parseInt(plotArea.getAttribute("height"));
 
@@ -344,19 +356,48 @@
           );
 
           plotArea.appendChild(point);
+        })();
 
-          (function showClearButton() {
-            clearButton.style.display = "inline-block";
-          })();
+        (function describe() {
+          resultDescriptionArea.innerHTML = describeResult(result);
+        })();
+
+        (function showClearButton() {
+          clearButton.style.display = "inline-block";
         })();
       }
 
-      function clearResult(plotArea, clearButton) {
+      function describeResult(result) {
+        var description = "";
+
+        if (result[1] > 0) {
+          description += "Authoritarian";
+        } else if (result[1] < 0) {
+          description += "Libertarian";
+        } else {
+          description += "Neutral";
+        }
+
+        description += " ";
+
+        if (result[0] > 0) {
+          description += "Right";
+        } else if (result[0] < 0) {
+          description += "Left";
+        } else {
+          description += "Center";
+        }
+
+        return description;
+      }
+
+      function clearResult(plotArea, clearButton, resultDescriptionArea) {
         while (plotArea.firstChild) {
           plotArea.removeChild(plotArea.firstChild);
         }
 
         clearButton.style.display = "none";
+        resultDescriptionArea.innerHTML = "";
       }
     </script>
   </body>
