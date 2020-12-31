@@ -14,6 +14,10 @@
       #title {
         margin: 1em;
       }
+
+      #clear-button {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -42,6 +46,7 @@
 
         <br />
         <input type="submit" value="Next" id="next-button" />
+        <input type="button" value="Clear" id="clear-button" />
       </form>
 
       <br />
@@ -67,6 +72,7 @@
 
       window.addEventListener("DOMContentLoaded", function () {
         var nextButton = document.getElementById("next-button");
+        var clearButton = document.getElementById("clear-button");
         var form = document.getElementById("form");
         var questionLegend = document.getElementById("question");
         var plotArea = document.getElementById("plot-area");
@@ -85,7 +91,7 @@
           adjustPlotAreaSize(plotArea, defaultPlotAreaDimensions);
 
           if (result) {
-            displayResult(plotArea, result);
+            displayResult(plotArea, result, clearButton);
           }
         });
 
@@ -112,7 +118,7 @@
             result = currentQuestion.result;
 
             // not actually a question, we're done
-            displayResult(plotArea, result);
+            displayResult(plotArea, result, clearButton);
 
             // reset to root
             currentQuestion = qa;
@@ -122,12 +128,16 @@
           }
 
           // in case the user is answering again
-          clearResult(plotArea);
+          clearResult(plotArea, clearButton);
           result = undefined;
 
           displayQuestion(questionLegend, currentQuestion);
 
           return null;
+        });
+
+        clearButton.addEventListener("click", function () {
+          clearResult(plotArea, clearButton);
         });
       });
 
@@ -183,7 +193,7 @@
         el.innerHTML = question.title;
       }
 
-      function displayResult(plotArea, result) {
+      function displayResult(plotArea, result, clearButton) {
         var plotAreaWidth = parseInt(plotArea.getAttribute("width"));
         var plotAreaHeight = parseInt(plotArea.getAttribute("height"));
 
@@ -334,13 +344,19 @@
           );
 
           plotArea.appendChild(point);
+
+          (function showClearButton() {
+            clearButton.style.display = "inline-block";
+          })();
         })();
       }
 
-      function clearResult(plotArea) {
+      function clearResult(plotArea, clearButton) {
         while (plotArea.firstChild) {
           plotArea.removeChild(plotArea.firstChild);
         }
+
+        clearButton.style.display = "none";
       }
     </script>
   </body>
