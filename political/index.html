@@ -18,13 +18,17 @@
       #clear-button {
         display: none;
       }
+
+      .centered {
+        text-align: center;
+      }
     </style>
   </head>
   <body>
     <header>
-      <center>
+      <div class="centered">
         <h1 id="title">Simplified Political Compass</h1>
-      </center>
+      </div class="centered">
     </header>
 
     <section>
@@ -50,12 +54,12 @@
       </form>
 
       <br />
-      <center>
+      <div class="centered">
         <svg id="plot-area" width="600" height="400"></svg>
 
         <br />
         <h2 id="result-description"></h2>
-      </center>
+      </div class="centered">
     </section>
 
     <script>
