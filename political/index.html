@@ -68,7 +68,7 @@
         form.addEventListener("submit", function (event) {
           event.preventDefault();
 
-          var answer = this.answer.value;
+          var answer = getValueOfRadio(form, "answer");
 
           switch (answer) {
             case "true":
@@ -98,6 +98,23 @@
           return null;
         });
       });
+
+      function getValueOfRadio(form, name) {
+        if (form[name] && form[name].value) {
+          return form[name].value;
+        }
+
+        // in case the value is not easily available
+        var inputs = form.getElementsByTagName("input");
+
+        for (var i = 0; i < inputs.length; i++) {
+          var input = inputs[i];
+
+          if (input.getAttribute("name") === name && input.checked) {
+            return input.value;
+          }
+        }
+      }
 
       function displayQuestion(el, question) {
         el.innerHTML = question.title;
