@@ -239,9 +239,10 @@
 
           var radius = plotAreaHeight * 0.05;
 
+          // basically equivalent to Math.sign: -1 for negatives, +1 for positives
           // useful to keep the plotted point inside the frame
-          var xSign = Math.sign(result[0]);
-          var ySign = Math.sign(result[1]);
+          var xSign = result[0] < 1 ? -1 : 1;
+          var ySign = result[1] < 1 ? -1 : 1;
 
           point.setAttributeNS(
             "",
